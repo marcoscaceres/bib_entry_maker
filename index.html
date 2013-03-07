@@ -99,7 +99,7 @@ input[type=text]:valid {
 <pre>....</pre>
 </output>
 </label>
-<script src="/js/URI.js"></script>
+<script src="js/URI.js"></script>
 <script src="js/jsbeautify.js"></script>
 <script src='http://www.w3.org/Tools/respec/respec-w3c-common'></script>
 <script src="http://code.jquery.com/jquery-2.0.0b1.js"></script>
@@ -126,7 +126,8 @@ window.addEventListener("DOMContentLoaded", function(){
   entryForm.entryid.addEventListener("input", validateEntryID);
   entryForm.spectitle.addEventListener("input", validateSpecTitle);
   entryForm.fetchButton.addEventListener("click", validateFetch);
-  entryForm.href.addEventListener("input", validateSpecLink);  
+  entryForm.href.addEventListener("input", validateSpecLink);
+  entryForm.validateButton.addEventListener("cl")
 });
 
 function matchValidity(e) {
