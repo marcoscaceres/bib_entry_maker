@@ -301,7 +301,8 @@ function findStatus(spec) {
   for (var i = 0, elem; i < spec.length; i++) {
     elem = spec[i];
     if (elem && elem.nodeName === "LINK" && elem.hasAttribute("href") && elem.href.search(style) > -1) {
-      status = elem.href.split(style)[1];
+      //old specs have [status].css in the 
+      status = elem.href.split(style)[1].split(".")[0];
     }
   }
   return status;
