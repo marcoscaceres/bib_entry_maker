@@ -65,7 +65,7 @@ input[type=text]:valid {
         et al.</label>
     </div>
     <div>
-      <label for="date">Date:</label>
+      <label for="date">Pub date:</label>
       <input name="date" type="date" placeholder="1 May 2001">
     </div>
     <div>
@@ -127,8 +127,13 @@ window.addEventListener("DOMContentLoaded", function(){
   entryForm.spectitle.addEventListener("input", validateSpecTitle);
   entryForm.fetchButton.addEventListener("click", validateFetch);
   entryForm.href.addEventListener("input", validateSpecLink);
-  entryForm.validateButton.addEventListener("cl")
+  entryForm.validateButton.addEventListener("click", showResult)
 });
+
+function showResult(){
+
+}
+
 
 function matchValidity(e) {
   entryForm.fetchButton.disabled = !e.target.validity.valid;
@@ -309,8 +314,9 @@ function findEditors(spec) {
     editors = [];
 
   allEditors.each(function (index, editor) {
-    //assuming names are "xxx yyy, affiliation" or just "xxx yyy"
-    var editorName = editor.textContent.split(",")[0];
+    //assuming names are "xxx yyy, affiliation" or just "xxx yyy" or "x y()"
+    var editorName = editor.textContent.split(",")[0].split("(")[0];
+    editorName = editorName.trim();
     editors.push(editorName);
   })
   return editors.join(", ")
