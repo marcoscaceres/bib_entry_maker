@@ -1,0 +1,328 @@
+<!doctype html>
+<head>
+<meta charset=UTF-8>
+<title>Respect Biblio Entry Maker 2000</title>
+<style>
+div > label {
+	width: 15%;
+	display: inline-block;
+	text-align: right;
+}
+input {
+	width: 60%;
+}
+label.inline {
+	width: auto;
+	text-align: left;
+	display: inline-block;
+}
+label.inline input {
+	width: auto
+}
+fieldset > div {
+	padding: .5em 0;
+}
+p.help {
+	display: none;
+}
+
+input[type=text]:invalid {
+  border: 2px solid red;
+}
+input[type=text]:valid {
+  border: 2px solid green;
+}
+</style>
+</head>
+
+<body>
+<h1>Biblio Entry Maker 2000</h1>
+<form id="entryForm">
+  <fieldset>
+    <legend>Entry Details</legend>
+    <div>
+      <label for="href">Link: </label>
+      <input required list="href_list" value="http://www.w3.org/TR/" name="href" type="url" placeholder="http://www.w3.org/TR/">
+      <datalist id="href_list"></datalist> 
+      <button name="fetchButton" disabled>Fetch!</button>
+    </div>
+    <div>
+      <label class="fieldname">Entry ID:</label>
+      <input name="entryid" placeholder="SUPERSPEC" type="text" required pattern="^[\w|\d]+[-|\w|\d]+$" list="entryid_list">
+      <datalist id="entryid_list"></datalist> 
+      <p class="help">The id used to refer to this entry. Convention is to use UPPERCASE.</p>
+    </div>
+    <div>
+      <label for="spectitle">Title: </label>
+      <input name="spectitle" list="spectitle_list" type="text" required placeholder="The Foo Spec">
+      <datalist id="spectitle_list"></datalist> 
+    </div>
+    <div>
+      <label for="authors">Editor(s):</label>
+      <input name="authors" type="text" placeholder="A. Person, S. Other">
+      <label class="inline">
+        <input type="checkbox">
+        et al.</label>
+    </div>
+    <div>
+      <label for="date">Date:</label>
+      <input name="date" type="date" placeholder="1 May 2001">
+    </div>
+    <div>
+      <label for="status">Status: </label>
+      <input name="status" list="status_list" placeholder="WD">
+      <datalist id="status_list">
+      		<option>FPWD</option>      
+      		<option>WD</option>
+      		<option>LC</option>
+            <option>CR</option>
+            <option>PR</option>
+            <option>REC</option>
+            <option>NOTE</option>
+       </datalist>
+    </div>
+    <div>
+      <label for="publisher">Publisher:</label>
+      <input name="publisher" type="text" list="publishers_list" placeholder="W3C">
+      <datalist id="publishers_list">
+      		<option>W3C</option>
+            <option>IETF</option>
+       </datalist>
+    </div>
+  </fieldset>
+  <fieldset>
+  <button id="validateButton">Validate!</button>
+  </fieldset>
+</form>
+<label>
+<output>
+<pre>....</pre>
+</output>
+</label>
+<script src="/js/URI.js"></script>
+<script src="js/jsbeautify.js"></script>
+<script src='http://www.w3.org/Tools/respec/respec-w3c-common'></script>
+<script src="http://code.jquery.com/jquery-2.0.0b1.js"></script>
+
+
+<script>
+window.addEventListener("DOMContentLoaded", function(){ 
+  //set up validation checks on the form
+  var entryForm = document.querySelector("#entryForm");
+
+  //entryForm
+  entryForm.addEventListener("submit", onFormSubmit);
+
+  //pupulate datalists
+  createSpecTitleOptions(entryForm.spectitle.list, berjon.biblio);
+  createHREFOptions(entryForm.href.list, berjon.biblio);
+  createEntryOptions(entryForm.entryid.list, berjon.biblio);
+
+  //href event handlers
+  entryForm.href.addEventListener("invalid", matchValidity);
+  entryForm.href.addEventListener("input", matchValidity);
+
+  //Validators
+  entryForm.entryid.addEventListener("input", validateEntryID);
+  entryForm.spectitle.addEventListener("input", validateSpecTitle);
+  entryForm.fetchButton.addEventListener("click", validateFetch);
+  entryForm.href.addEventListener("input", validateSpecLink);  
+});
+
+function matchValidity(e) {
+  entryForm.fetchButton.disabled = !e.target.validity.valid;
+  if (e.target.validity.valid) {
+    entryForm.href.setCustomValidity('');
+  }
+}
+
+function fetch(url) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+
+  xhr.onload = function (e) {
+    var spec = $.parseHTML(e.target.responseText);
+    window.spec = spec;
+    entryForm.spectitle.value = findTitle(spec);
+    entryForm.authors.value = findEditors(spec);
+    entryForm.status.value = findStatus(spec);
+    entryForm.publisher.value = findPublisher(url),
+    entryForm.date.value = findPubDate(spec),
+    entryForm.entryid.value = findShortName(url);
+  };
+  xhr.onerror = function (e) {
+    var msg = "There was an error fetching the URL: " + e;
+    console.log(e);
+    entryForm.href.setCustomValidity(msg);
+    alert(msg);
+  }
+  xhr.send();
+}
+
+
+
+function validateFetch(e) {
+  var url = entryForm.href.value.trim();
+  e.preventDefault();
+  if (url) {
+    fetch(url);
+  }
+}
+
+function validateSpecTitle(e) {
+  var selector = 'option[value="' + e.target.value + '"]';
+  var option = this.list.querySelector(selector);
+  var msg = ""
+  if (option && option.dataset.key) {
+    if (berjon.biblio.hasOwnProperty(String(option.dataset.key))) {
+      msg = 'This spec already exists in the DB!';
+    }
+  }
+  this.setCustomValidity(msg);
+}
+
+function validateEntryID(e) {
+  var msg = "";
+  if (berjon.biblio.hasOwnProperty(e.target.value)) {
+    msg = 'This ID is already taken!'
+  }
+  this.setCustomValidity(msg);
+}
+
+function onFormSubmit(e) {
+  e.preventDefault();
+  if (!this.checkValidity()) {
+    console.log("form is invalid")
+    return;
+  }
+  console.log("valid");
+}
+
+
+function createHREFOptions(elem, biblio) {
+  function mapToHTMLOption(id) {
+    var href,
+    record = biblio[id];
+    if (typeof record === "string") {
+      href = $("<div>" + record + "</div>").find("a:first").attr("href") || "";
+    } else {
+      href = record.href || "";
+    }
+    value = "<option value=\"" + href + "\" data-key=\"" + id + "\">";
+    return value;
+  }
+  var ids = Object.getOwnPropertyNames(biblio),
+    options = ids.map(mapToHTMLOption);
+  elem.innerHTML = options.join("");
+}
+
+function createSpecTitleOptions(elem, biblio) {
+  function mapToHTMLOption(id) {
+    var title,
+    record = biblio[id];
+    if (typeof record === "string") {
+      title = $("<div>" + record + "</div>").find("a:first").text() || "";
+    } else {
+      title = record.title || "";
+    }
+    value = "<option value=\"" + title + "\" data-key=\"" + id + "\">";
+    return value
+  }
+  var ids = Object.getOwnPropertyNames(biblio),
+    options = ids.map(mapToHTMLOption);
+  elem.innerHTML = options.join("");
+}
+
+function createEntryOptions(elem, biblio) {
+  function mapToHTMLOption(id) {
+    var value = "<option value=\"" + id + "\">";
+    return value
+  }
+  var ids = Object.getOwnPropertyNames(biblio),
+    options = ids.map(mapToHTMLOption);
+  elem.innerHTML = options.join("");
+}
+
+function validateSpecLink(e) {
+  var selector = 'option[value="' + e.target.value + '"]';
+  var option = this.list.querySelector(selector);
+  var msg = ""
+  if (option && option.dataset.key) {
+    if (berjon.biblio.hasOwnProperty(String(option.dataset.key))) {
+      msg = 'This spec already exists in the DB!';
+    }
+  }
+  this.setCustomValidity(msg);
+}
+
+function findPublisher(url) {
+  var uri = URI(url),
+    publisher = uri.domain().split(".")[0].toUpperCase();
+  publisher += (publisher === "W3") ? "C" : "";
+  return publisher;
+}
+
+function findShortName(url) {
+  var id = url.match(/TR\/\w+/)[0].split("TR/")[1].toUpperCase();
+  return id;
+}
+
+function findPubDate(spec) {
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    selector = "dl dt:contains(This Version:), dl dt:contains(This version:)",
+    dateDD = $(spec).find(selector).next(),
+    thisVersionURL = URI(dateDD.find("a").attr("href")).path(),
+    date = thisVersionURL.match(/\d{8}/)[0] || "",
+    formattedDate = "",
+    dateObj;
+
+  if (date) {
+    //convert to a parsable format
+    date = date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8)
+    /*dateObj = new Date(date);
+    formattedDate = dateObj.getDate() + " " 
+  formattedDate += months[dateObj.getMonth()] + " " 
+  formattedDate += dateObj.getFullYear();
+  */
+  }
+  return date;
+}
+
+function findStatus(spec) {
+  //'link[href*="http://www.w3.org/StyleSheets/TR/W3C-"]'
+  var status = "",
+    style = "http://www.w3.org/StyleSheets/TR/W3C-";
+  for (var i = 0, elem; i < spec.length; i++) {
+    elem = spec[i];
+    if (elem && elem.nodeName === "LINK" && elem.hasAttribute("href") && elem.href.search(style) > -1) {
+      status = elem.href.split(style)[1];
+    }
+  }
+  return status;
+}
+
+function findEditors(spec) {
+  //Finds "Editors:", "Editor:" and "Previous Editor:"
+  var editorsQuery = "dl dt:contains(Editors:),dl dt:contains(Editor:)",
+    allEditors = $(spec).find(editorsQuery).nextUntil("dt", "dd"),
+    editors = [];
+
+  allEditors.each(function (index, editor) {
+    //assuming names are "xxx yyy, affiliation" or just "xxx yyy"
+    var editorName = editor.textContent.split(",")[0];
+    editors.push(editorName);
+  })
+  return editors.join(", ")
+}
+
+function findTitle(spec) {
+  var title = "";
+  for (var i = 0, elem; i < spec.length; i++) {
+    elem = spec[i];
+    if (elem && elem.nodeName === "TITLE") {
+      title = elem.textContent
+    }
+  }
+  return title;
+}
+</script>
