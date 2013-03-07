@@ -144,6 +144,10 @@ function matchValidity(e) {
 
 function fetch(url) {
   var xhr = new XMLHttpRequest();
+  //normalize URLs
+  if(url.charAt(url.length -1) !== "/"){
+    url += "/";
+  }
   xhr.open('GET', url);
 
   xhr.onload = function (e) {
@@ -316,7 +320,7 @@ function findEditors(spec) {
 
   allEditors.each(function (index, editor) {
     //assuming names are "xxx yyy, affiliation" or just "xxx yyy" or "x y()"
-    var editorName = editor.textContent.split(",")[0].split("(")[0];
+    var editorName = editor.textContent.split(",")[0].split("(")[0].split("<")[0];
     editorName = editorName.trim();
     editors.push(editorName);
   })
