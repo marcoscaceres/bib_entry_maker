@@ -1,4 +1,6 @@
-bib_entry_maker
-===============
+# Biblio Entry Maker 2000
 
-makes bibliographical entries for Respec.js
+Makes bibliographical entries for Respec.js.
+
+[access it online](http://marcoscaceres.github.com/bib_entry_maker/)
+
