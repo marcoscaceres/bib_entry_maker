@@ -41,6 +41,10 @@ input[type=text]:valid {
 section{
   border: 1px solid black;
 }
+#specDisplay{
+  width: 100%;
+  min-height: 30%;
+}
 </style>
 </head>
 
@@ -104,11 +108,12 @@ section{
   <button id="validateButton">Validate!</button>
   </fieldset>
 </form>
-<label>
 <section>
 <output><pre contenteditable id="output"></pre></output>
 </section>
-</label>
+
+<iframe src="" id="specDisplay"></iframe>
+
 <script src="js/URI.js"></script>
 <script src="js/jsbeautify.js"></script>
 <script src='http://www.w3.org/Tools/respec/respec-w3c-common'></script>
@@ -249,7 +254,13 @@ window.addEventListener("DOMContentLoaded", function () {
     }
     xhr.addEventListener("load", enableButton);
     xhr.addEventListener("load", showResult);
+    xhr.addEventListener("load", function(){showSpec(url);});
     xhr.addEventListener("error", enableButton);
+  }
+
+  function showSpec(url){
+     var specDisplay = document.querySelector("#specDisplay");
+     specDisplay.src = url;
   }
 
   function clearForm() {
