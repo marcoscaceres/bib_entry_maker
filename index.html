@@ -150,7 +150,9 @@ window.addEventListener("DOMContentLoaded", function () {
   //href event handlers
   entryForm.href.addEventListener("invalid", matchValidity);
   entryForm.href.addEventListener("input", matchValidity);
-  entryForm.addEventListener("input", showResult)
+  entryForm.addEventListener("input", showResult);
+  entryForm.etAl.addEventListener("change", showResult);
+
   //Validators
   entryForm.entryid.addEventListener("input", validateEntryID);
   entryForm.spectitle.addEventListener("input", validateSpecTitle);
