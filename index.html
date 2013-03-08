@@ -142,12 +142,9 @@ function matchValidity(e) {
   }
 }
 
-function fetch(url) {
+function fetch(url, button) {
   var xhr = new XMLHttpRequest();
   //normalize URLs
-  if(url.charAt(url.length -1) !== "/"){
-    url += "/";
-  }
   xhr.open('GET', url);
 
   xhr.onload = function (e) {
@@ -159,12 +156,15 @@ function fetch(url) {
     entryForm.publisher.value = findPublisher(url),
     entryForm.date.value = findPubDate(spec),
     entryForm.entryid.value = findShortName(url);
+    button.disabled = false;
   };
   xhr.onerror = function (e) {
-    var msg = "There was an error fetching the URL: " + e;
-    console.log(e);
-    entryForm.href.setCustomValidity(msg);
+    var msg = "There was an error fetching the URL.";
     alert(msg);
+    button.disabled = false;
+  }
+  xhr.onprogress = function(e){
+    console.log(e);
   }
   xhr.send();
 }
@@ -175,7 +175,8 @@ function validateFetch(e) {
   var url = entryForm.href.value.trim();
   e.preventDefault();
   if (url) {
-    fetch(url);
+    fetch(url, this);
+    this.disabled = true;
   }
 }
 
@@ -281,8 +282,8 @@ function findPubDate(spec) {
   var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     selector = "dl dt:contains(This Version:), dl dt:contains(This version:)",
     dateDD = $(spec).find(selector).next(),
-    thisVersionURL = URI(dateDD.find("a").attr("href")).path(),
-    date = thisVersionURL.match(/\d{8}/)[0] || "",
+    thisVersionURL = (dateDD.length > 0) ? URI(dateDD.find("a").attr("href")).path() : "",
+    date = (thisVersionURL.match(/\d{8}/) || [""])[0],
     formattedDate = "",
     dateObj;
 
@@ -314,9 +315,11 @@ function findStatus(spec) {
 
 function findEditors(spec) {
   //Finds "Editors:", "Editor:" and "Previous Editor:"
-  var editorsQuery = "dl dt:contains(Editors:),dl dt:contains(Editor:)",
-    allEditors = $(spec).find(editorsQuery).nextUntil("dt", "dd"),
-    editors = [];
+  var editors = "dl dt:contains(Editors:),dl dt:contains(Editor:),",
+      authors = "dl dt:contains(Author:),dl dt:contains(Authors:),",
+      coeds =  "dl dt:contains(Co-editors:)", 
+      allEditors = $(spec).find(editors + authors + coeds).nextUntil("dt", "dd"),
+      editors = [];
 
   allEditors.each(function (index, editor) {
     //assuming names are "xxx yyy, affiliation" or just "xxx yyy" or "x y()"
