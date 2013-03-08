@@ -269,8 +269,8 @@ window.addEventListener("DOMContentLoaded", function () {
     }
     xhr.addEventListener("load", enableButton);
     xhr.addEventListener("load", showResult);
-    xhr.addEventListener("load", function(){showSpec(url);});
     xhr.addEventListener("error", enableButton);
+    showSpec(url);
   }
 
   function showSpec(url){
@@ -366,7 +366,7 @@ window.addEventListener("DOMContentLoaded", function () {
   function validateSpecLink(e) {
     var selector = 'option[value="' + e.target.value + '"]';
     var option = this.list.querySelector(selector);
-    var msg = ""
+    var msg = "";
     if (option && option.dataset.key) {
       if (berjon.biblio.hasOwnProperty(String(option.dataset.key))) {
         msg = 'This spec already exists in the DB!';
