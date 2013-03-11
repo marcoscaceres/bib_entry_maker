@@ -1,456 +1,234 @@
 <!doctype html>
-<head>
 <meta charset=UTF-8>
-<title>Biblio Entry Maker 2000</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblio Entry Maker</title>
+
 <style>
-div > label {
-	width: 15%;
-	display: inline-block;
-	text-align: right;
-}
-input {
-	width: 60%;
-}
-label.inline {
-	width: auto;
-	text-align: left;
-	display: inline-block;
-}
-label.inline input {
-	width: auto
-}
-fieldset > div {
-	padding: .5em 0;
-}
-p.help {
-	display: none;
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-input[type=text]:invalid {
-  border: 2px solid red;
+
+*:focus{
+    outline: none;
 }
-input[type=text]:valid {
-  border: 2px solid green;
+
+header{
+  vertical-align: middle;
+  font-size: .5em;
+  height: .7cm;
+  background-color: black;
+  color: white;
+  font-weight: normal;
+  text-align: left;
 }
-.idle{
-   display: none;
+
+header h1{
+  display: inline-block;
+  padding-left: .3cm;
 }
-.loading{
+
+.main{
+  display: block;
+}
+
+.pane{
+  width: 100%;
   display: inline-block;
 }
-section{
-  border: 1px solid black;
+
+.pane h1{
+  font-size: .9em;
 }
-#specDisplay{
-  width: 100%;
-  min-height: 30%;
+
+.pane label{
+  font-weight: bold;
 }
+
+.pane-top{
+  vertical-align: top;
+}
+
+#entryPane{
+
+}
+
+#outputPane{
+
+}
+
+#entryPane fieldset{
+  background-color: green;
+
+  margin: auto; 
+}
+
+.pane form{
+  white-space-collapse: discard;
+  font-size: .8em;
+}
+
+.pane form label{
+  display: inline-block;
+}
+
+
+#entryPane form input, 
+#entryPane form progress, 
+#entryPane form button {
+  height: .7cm;
+  padding: 0 .4em;
+  width: auto;
+}
+
+#entryPane form button{
+
+}
+
+#entryPane form input{
+  border: none;
+  background-color: transparent;
+  text-align: left;
+}
+
+#entryPane form progress{
+  vertical-align: -.7em;
+}
+
+#entryPane fieldset div.input{
+  background-color: white;
+  white-space-collapse: discard;
+  border: 1px solid #999;
+  border-radius: .2cm;
+  margin: .3cm .4cm;
+}
+
+#specPane iframe{
+  width: 99%;
+}
+
+label{
+  text-align: right;
+  width: 4em;
+  padding-left: .3cm;
+}
+
+pre{
+  overflow: auto;
+}
+
+
 </style>
-</head>
 
 <body>
-<h1>Biblio Entry Maker 2000</h1>
+
+<header>
+  <h1>Biblio Entry Maker</h1>
+</header>
+
+<main>
+  <section class="pane" id="entryPane">
+    <h1>Entry</h1>
+    <form id="entryForm">
+      <fieldset>
+        <div class="multi">
+          <div class="input">
+            <label for="href">Link:</label>
+            <input required list="href_list" value="http://www.w3.org/TR/" name="href" type="url" placeholder="http://www.w3.org/TR/">
+             <datalist id="href_list"></datalist>
+          </div>
+          <button name="fetchButton">Fetch!</button>
+        </div>
+        
+        <div class="multi">
+          <div class="input">
+            <label class="fieldname">Entry ID:</label>
+            <input name="entryid" placeholder="SUPERSPEC" required pattern="^[\w|\d]+[-|\w|\d]+$" list="entryid_list">
+            <datalist id="entryid_list"></datalist>
+          </div>
+          <button class="loadButton" disabled>Load</button>
+        </div>
+
+        <div class="multi"> 
+          <div class="input">
+            <label for="spectitle">Title: </label>
+            <input name="spectitle" list="spectitle_list" required placeholder="The Foo Spec">
+            <datalist id="spectitle_list"></datalist> 
+          </div>
+          <button class="loadButton" disabled>Load</button>
+        </div>
+
+        <div class="multi">
+          <div class="input">
+            <label for="authors">Editor(s):</label>
+            <input name="authors" type="text" placeholder="A. Person, S. Other">
+          </div>
+          <label class="inline">
+            <input type="checkbox" name="etAl">
+            et al.</label>
+        </div>
+
+        <div class="input">
+          <label for="date">Date:</label>
+          <input name="date" type="date" placeholder="1 May 2001">
+        </div>
+
+        <div class="input">
+          <label for="status">Status:</label>
+          <input name="status" list="status_list" placeholder="WD">
+          <datalist id="status_list">
+              <option>WD</option>
+              <option>REC</option>
+              <option>NOTE</option>
+          </datalist>
+        </div>
+        
+        <div class="input">
+          <label for="publisher">Publisher:</label>
+          <input name="publisher" type="text" list="publishers_list" placeholder="W3C">
+        </div>
+        <datalist id="publishers_list">
+          <option>W3C</option>
+          <option>IETF</option>
+        </datalist>
+      </fieldset>
+
+      <fieldset>
+      <button id="validateButton">Validate!</button>
+      </fieldset>
+    </form>
+  </section>
+
+  <section class="pane" id="outputPane">
+    <h1>Output</h1>
+    <output>
+<pre class="pre-scrollable" contenteditable id="output">{
+  "": {
+    "authors": [""],
+    "date": "",
+    "href": "http://www.w3.org/TR/",
+    "publisher": "",
+    "status": "dfs",
+    "title": ""
+  }
+}</pre>
+    </output>
+  </section>
+
+  <section id="specPane" class="pane">
+    <h1>Spec</h1>
+    <iframe id="specDisplay"></iframe>
+  </section>
+
+</main>
+<footer>
 <p>Once you've got your entry, head over to <a href="https://github.com/darobin/respec">respec on GitHub</a>. Found a bug? Wanna help make this better? <a href="https://github.com/marcoscaceres/bib_entry_maker/">It's on GitHub</a>.</p>
-<form id="entryForm">
-  <fieldset>
-    <legend>Entry Details</legend>
-    <div>
-      <label for="href">Link: </label>
-      <input required list="href_list" value="http://www.w3.org/TR/" name="href" type="url" placeholder="http://www.w3.org/TR/">
-      <datalist id="href_list"></datalist> 
-      <button name="fetchButton" disabled>Fetch!</button>
-      <progress class="idle"></progress>
-    </div>
-    <div>
-      <label class="fieldname">Entry ID:</label>
-      <input name="entryid" placeholder="SUPERSPEC" type="text" required pattern="^[\w|\d]+[-|\w|\d]+$" list="entryid_list">
-      <datalist id="entryid_list"></datalist> 
-      <p class="help">The id used to refer to this entry. Convention is to use UPPERCASE.</p>
-    </div>
-    <div>
-      <label for="spectitle">Title: </label>
-      <input name="spectitle" list="spectitle_list" type="text" required placeholder="The Foo Spec">
-      <datalist id="spectitle_list"></datalist> 
-    </div>
-    <div>
-      <label for="authors">Editor(s):</label>
-      <input name="authors" type="text" placeholder="A. Person, S. Other">
-      <label class="inline">
-        <input type="checkbox" name="etAl">
-        et al.</label>
-    </div>
-    <div>
-      <label for="date">Pub date:</label>
-      <input name="date" type="date" placeholder="1 May 2001">
-    </div>
-    <div>
-      <label for="status">Status: </label>
-      <input name="status" list="status_list" placeholder="WD">
-      <datalist id="status_list">
-      		<option>FPWD</option>      
-      		<option>WD</option>
-      		<option>LC</option>
-            <option>CR</option>
-            <option>PR</option>
-            <option>REC</option>
-            <option>NOTE</option>
-       </datalist>
-    </div>
-    <div>
-      <label for="publisher">Publisher:</label>
-      <input name="publisher" type="text" list="publishers_list" placeholder="W3C">
-      <datalist id="publishers_list">
-      		<option>W3C</option>
-            <option>IETF</option>
-       </datalist>
-    </div>
-  </fieldset>
-  <fieldset>
-  <button id="validateButton">Validate!</button>
-  </fieldset>
-</form>
-<section>
-<output><pre contenteditable id="output"></pre></output>
-</section>
-
-<iframe src="" id="specDisplay"></iframe>
-
-<script src="js/URI.js"></script>
-<script src="js/jsbeautify.js"></script>
+</footer>
 <script src='http://www.w3.org/Tools/respec/respec-w3c-common'></script>
 <script src="http://code.jquery.com/jquery-2.0.0b1.js"></script>
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-39126757-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-
-<script>
-window.addEventListener("DOMContentLoaded", function () {
-  "use strict";
-  //set up validation checks on the form
-  var entryForm = document.querySelector("#entryForm");
-
-  //entryForm
-  entryForm.addEventListener("submit", onFormSubmit);
-
-  //pupulate datalists
-  createSpecTitleOptions(entryForm.spectitle.list, berjon.biblio);
-  createHREFOptions(entryForm.href.list, berjon.biblio);
-  createEntryOptions(entryForm.entryid.list, berjon.biblio);
-
-  //href event handlers
-  entryForm.href.addEventListener("invalid", matchValidity);
-  entryForm.href.addEventListener("input", matchValidity);
-  entryForm.addEventListener("input", showResult);
-  entryForm.etAl.addEventListener("change", showResult);
-
-  //Validators
-  entryForm.entryid.addEventListener("input", validateEntryID);
-  entryForm.spectitle.addEventListener("input", validateSpecTitle);
-  entryForm.fetchButton.addEventListener("click", validateFetch);
-  entryForm.href.addEventListener("input", validateSpecLink);
-  entryForm.validateButton.addEventListener("click", showResult)
-
-  function showResult() {
-    var output = document.querySelector("#output"); 
-    var key = entryForm.entryid.value;
-    var resultSet = {};
-    var beautyOpts = {
-        indent_size: 2,
-        indent_char: ' ',
-        preserve_newlines: true,
-        jslint_happy: false,
-        keep_array_indentation: false,
-        brace_style: 'collapse',
-        space_before_conditional: true,
-        break_chained_methods: false
-    }
-    var result;
-
-    function formatDate(date){
-      var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      var dateObj = new Date(date);
-      var formattedDate; 
-      if(isNaN(dateObj.getTime())){
-        return "";
-      }
-      formattedDate = dateObj.getDate() + " ";
-      formattedDate += months[dateObj.getMonth()] + " " 
-      formattedDate += dateObj.getFullYear();
-      return formattedDate
-    }
-
-    resultSet[key] = {
-      authors: entryForm.authors.value.split(", "),
-      date: formatDate(entryForm.date.value.trim()),
-      href: entryForm.href.value.trim(),
-      publisher: entryForm.publisher.value.trim(),
-      status: entryForm.status.value.trim(),
-      title: entryForm.spectitle.value.trim(),
-    };
-
-    if(entryForm.etAl.checked){
-      resultSet[key].etAl = true;
-    }
-    result = JSON.stringify(resultSet);
-    result = js_beautify(result, beautyOpts);
-    output.innerHTML = result;
-  }
-
-
-  function matchValidity(e) {
-    entryForm.fetchButton.disabled = !e.target.validity.valid;
-    if (e.target.validity.valid) {
-      entryForm.href.setCustomValidity('');
-    }
-  }
-
-  function fetch(url, button) {
-    var xhr = new XMLHttpRequest();
-
-    //normalize URLs
-    xhr.open('GET', url);
-
-    xhr.onload = function (e) {
-      var spec = $.parseHTML(e.target.responseText);
-      entryForm.spectitle.value = findTitle(spec);
-      entryForm.authors.value = findEditors(spec);
-      entryForm.status.value = findStatus(spec);
-      entryForm.publisher.value = findPublisher(url),
-      entryForm.date.value = findPubDate(spec),
-      entryForm.entryid.value = findShortName(url);
-    };
-    xhr.onerror = function (e) {
-      var msg = "There was an error fetching the URL.";
-      alert(msg);
-    }
-    xhr.send();
-    return xhr;
-  }
-
-  function validateFetch(e) {
-    var self = this;
-    var url = entryForm.href.value.trim();
-    var progress = document.querySelector("progress");
-    var xhr;
-
-    e.preventDefault();
-
-    if (!url) {
-      return;
-    }
-
-    function enableButton() {
-      progress.class = "idle";
-      self.disabled = false;
-    }
-
-    function disableButton() {
-      self.disabled = true;
-    }
-
-    clearForm();
-    disableButton();
-    xhr = fetch(url, this);
-
-    xhr.onprogress = function (e) {
-      progress.class = "loading";
-      progress.max = e.total;
-      progress.value = e.loaded;
-    }
-    xhr.addEventListener("load", enableButton);
-    xhr.addEventListener("load", showResult);
-    xhr.addEventListener("error", enableButton);
-    showSpec(url);
-  }
-
-  function showSpec(url){
-     var specDisplay = document.querySelector("#specDisplay");
-     specDisplay.src = url;
-  }
-
-  function clearForm() {
-    entryForm.spectitle.value = "";
-    entryForm.authors.value = "";
-    entryForm.status.value = "";
-    entryForm.publisher.value = "";
-    entryForm.date.value = "";
-    entryForm.entryid.value = "";
-  }
-
-  function validateSpecTitle(e) {
-    var selector = 'option[value="' + e.target.value + '"]';
-    var option = this.list.querySelector(selector);
-    var msg = ""
-    if (option && option.dataset.key) {
-      if (berjon.biblio.hasOwnProperty(String(option.dataset.key))) {
-        msg = 'This spec already exists in the DB!';
-      }
-    }
-    this.setCustomValidity(msg);
-  }
-
-  function validateEntryID(e) {
-    var msg = "";
-    if (berjon.biblio.hasOwnProperty(e.target.value)) {
-      msg = 'This ID is already taken!'
-    }
-    this.setCustomValidity(msg);
-  }
-
-  function onFormSubmit(e) {
-    e.preventDefault();
-    if (!this.checkValidity()) {
-      console.log("form is invalid");
-      return;
-    }
-    alert("Looks good to me!");
-  }
-
-
-  function createHREFOptions(elem, biblio) {
-    function mapToHTMLOption(id) {
-      var record = biblio[id],
-          href,
-          value;
-      if (typeof record === "string") {
-        href = $("<div>" + record + "</div>").find("a:first").attr("href") || "";
-      } else {
-        href = record.href || "";
-      }
-      value = "<option value=\"" + href + "\" data-key=\"" + id + "\">";
-      return value;
-    }
-    var ids = Object.getOwnPropertyNames(biblio),
-      options = ids.map(mapToHTMLOption);
-    elem.innerHTML = options.join("");
-  }
-
-  function createSpecTitleOptions(elem, biblio) {
-    function mapToHTMLOption(id) {
-      var record = biblio[id], 
-          value, 
-          title;
-      if (typeof record === "string") {
-        title = $("<div>" + record + "</div>").find("a:first").text() || "";
-      } else {
-        title = record.title || "";
-      }
-      value = "<option value=\"" + title + "\" data-key=\"" + id + "\">";
-      return value
-    }
-    var ids = Object.getOwnPropertyNames(biblio),
-      options = ids.map(mapToHTMLOption);
-    elem.innerHTML = options.join("");
-  }
-
-  function createEntryOptions(elem, biblio) {
-    function mapToHTMLOption(id) {
-      var value = "<option value=\"" + id + "\">";
-      return value
-    }
-    var ids = Object.getOwnPropertyNames(biblio),
-      options = ids.map(mapToHTMLOption);
-    elem.innerHTML = options.join("");
-  }
-
-  function validateSpecLink(e) {
-    var selector = 'option[value="' + e.target.value + '"]';
-    var option = this.list.querySelector(selector);
-    var msg = "";
-    if (option && option.dataset.key) {
-      if (berjon.biblio.hasOwnProperty(String(option.dataset.key))) {
-        msg = 'This spec already exists in the DB!';
-      }
-    }
-    this.setCustomValidity(msg);
-  }
-
-  function findPublisher(url) {
-    var uri = URI(url),
-      publisher = uri.domain().split(".")[0].toUpperCase();
-    publisher += (publisher === "W3") ? "C" : "";
-    return publisher;
-  }
-
-  function findShortName(url) {
-    //Split on W3C's TR
-    var id = (url.match(/TR\/\w+/) || [""])[0].split("TR/");
-    if (id) {
-      return id.join("").toUpperCase();
-    }
-    //try IETF
-    id = (url.match(/rfc\/\w+/) || [""])[0].split("rfc/");
-    if (id) {
-      id.join("").toUpperCase();
-    }
-    return "";
-  }
-
-  function findPubDate(spec) {
-    var selector = "dl dt:contains(This Version:), dl dt:contains(This version:)",
-        dateDD = $(spec).find(selector).next(),
-        thisVersionURL = (dateDD.length > 0) ? URI(dateDD.find("a").attr("href")).path() : "",
-        date = (thisVersionURL.match(/\d{8}/) || [""])[0],
-        formattedDate = "",
-        dateObj;
-
-    if (date) {
-      //convert to a parsable format
-      date = date.substring(0, 4) + "-" + date.substring(4, 6) + "-" + date.substring(6, 8)
-    }
-    return date;
-  }
-
-  function findStatus(spec) {
-    //'link[href*="http://www.w3.org/StyleSheets/TR/W3C-"]'
-    var status = "",
-      style = "http://www.w3.org/StyleSheets/TR/W3C-";
-    for (var i = 0, elem; i < spec.length; i++) {
-      elem = spec[i];
-      if (elem && elem.nodeName === "LINK" && elem.hasAttribute("href") && elem.href.search(style) > -1) {
-        //old specs have [status].css in the 
-        status = elem.href.split(style)[1].split(".")[0];
-      }
-    }
-    return status;
-  }
-
-  function findEditors(spec) {
-    //Finds "Editors:", "Editor:" and "Previous Editor:"
-    var editors = "dl dt:contains(Editors:),dl dt:contains(Editor:),",
-      authors = "dl dt:contains(Author:),dl dt:contains(Authors:),",
-      coeds = "dl dt:contains(Co-editors:)",
-      allEditors = $(spec).find(editors + authors + coeds).nextUntil("dt", "dd"),
-      editors = [];
-
-    allEditors.each(function (index, editor) {
-      //assuming names are "xxx yyy, affiliation" or just "xxx yyy" or "x y()"
-      var editorName = editor.textContent.split(",")[0].split("(")[0].split("<")[0];
-      editorName = editorName.trim();
-      editors.push(editorName);
-    })
-    return editors.join(", ")
-  }
-
-  function findTitle(spec) {
-    var title = "";
-    for (var i = 0, elem; i < spec.length; i++) {
-      elem = spec[i];
-      if (elem && elem.nodeName === "TITLE") {
-        title = elem.textContent
-      }
-    }
-    return title;
-  }
-});
-</script>
+<script src="js/URI.js"></script>
+<script src="js/jsbeautify.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/entryMaker.js"></script>
