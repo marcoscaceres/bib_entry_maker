@@ -87,6 +87,7 @@ section{
       <label for="status">Status: </label>
       <input name="status" list="status_list" placeholder="WD">
       <datalist id="status_list">
+          <option>Living Standard</option>
       		<option>FPWD</option>      
       		<option>WD</option>
       		<option>LC</option>
@@ -94,6 +95,7 @@ section{
           <option>PR</option>
           <option>REC</option>
           <option>NOTE</option>
+          <option>Informational</option>
        </datalist>
     </div>
     <div>
@@ -120,7 +122,7 @@ section{
 <script src="js/URI.js"></script>
 <script src="js/jsbeautify.js"></script>
 <script src='http://www.w3.org/Tools/respec/respec-w3c-common'></script>
-<script src="http://code.jquery.com/jquery-2.0.0b1.js"></script>
+<script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -144,11 +146,6 @@ window.addEventListener("DOMContentLoaded", function () {
   //entryForm
   entryForm.addEventListener("submit", onFormSubmit);
 
-  //pupulate datalists
-  createSpecTitleOptions(entryForm.spectitle.list, berjon.biblio);
-  createHREFOptions(entryForm.href.list, berjon.biblio);
-  createEntryOptions(entryForm.entryid.list, berjon.biblio);
-
   //href event handlers
   entryForm.href.addEventListener("invalid", matchValidity);
   entryForm.href.addEventListener("input", matchValidity);
@@ -160,7 +157,16 @@ window.addEventListener("DOMContentLoaded", function () {
   entryForm.spectitle.addEventListener("input", validateSpecTitle);
   entryForm.fetchButton.addEventListener("click", validateFetch);
   entryForm.href.addEventListener("input", validateSpecLink);
-  entryForm.validateButton.addEventListener("click", showResult)
+  entryForm.validateButton.addEventListener("click", showResult);
+	
+	$.getJSON("http://specref.jit.su/bibrefs", function(data){console.log(pupulateDatalists)})
+	
+	function pupulateDatalists(data){
+			createSpecTitleOptions(entryForm.spectitle.list, data);
+			createHREFOptions(entryForm.href.list, data);
+			createEntryOptions(entryForm.entryid.list, data);	
+	}
+	
 
   function showResult() {
     var output = document.querySelector("#output"); 
@@ -379,7 +385,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
   function findPublisher(url) {
     var uri = URI(url),
-      publisher = uri.domain().split(".")[0].toUpperCase();
+        publisher = uri.domain().split(".")[0].toUpperCase();
     publisher += (publisher === "W3") ? "C" : "";
     return publisher;
   }
