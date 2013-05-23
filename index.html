@@ -159,7 +159,7 @@ window.addEventListener("DOMContentLoaded", function () {
   entryForm.href.addEventListener("input", validateSpecLink);
   entryForm.validateButton.addEventListener("click", showResult);
 	
-	$.getJSON("http://specref.jit.su/bibrefs", function(data){console.log(pupulateDatalists)})
+	$.getJSON("http://specref.jit.su/bibrefs", pupulateDatalists)
 	
 	function pupulateDatalists(data){
 			createSpecTitleOptions(entryForm.spectitle.list, data);
